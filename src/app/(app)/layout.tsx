@@ -21,7 +21,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isReady) return;
-    if (!user) {
+    if (!useAuthStore.getState().user) {
       router.replace("/login");
       return;
     }
@@ -30,7 +30,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       .catch(() => {
         // 401 será manejado por el interceptor
       });
-  }, [isReady, user, router, setUser]);
+    // Solo dispara una vez tras hidratar — no incluir `user` evita el loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isReady]);
 
   if (!isReady) {
     return (
