@@ -12,6 +12,14 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { PermissionGuard } from "@/components/auth/permission-guard";
 import { QuickPaymentModal } from "@/components/payments/quick-payment-modal";
 import { Pagination } from "@/components/ui/pagination";
+import {
+  DataTable,
+  DataTableCell,
+  DataTableHead,
+  DataTableHeader,
+  DataTableRow,
+  MobileCardList,
+} from "@/components/ui/data-table";
 
 import { usePaymentsQuery } from "@/lib/queries/payments";
 import { useTenantQuery } from "@/lib/queries/tenant";
@@ -109,52 +117,87 @@ export default function PaymentsPage() {
               className="border-0"
             />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800">
-                    <th className="px-4 py-3 font-medium">Fecha</th>
-                    <th className="px-4 py-3 font-medium">Cliente</th>
-                    <th className="px-4 py-3 font-medium">Tipo</th>
-                    <th className="px-4 py-3 font-medium">Monto</th>
-                    <th className="px-4 py-3 font-medium">Método</th>
-                    <th className="px-4 py-3 font-medium">Notas</th>
+            <>
+              <DataTable>
+                <DataTableHead>
+                  <tr>
+                    <DataTableHeader>Fecha</DataTableHeader>
+                    <DataTableHeader>Cliente</DataTableHeader>
+                    <DataTableHeader>Tipo</DataTableHeader>
+                    <DataTableHeader>Monto</DataTableHeader>
+                    <DataTableHeader>Método</DataTableHeader>
+                    <DataTableHeader>Notas</DataTableHeader>
                   </tr>
-                </thead>
+                </DataTableHead>
                 <tbody>
                   {data?.items.map((p) => (
-                    <tr
-                      key={p.id}
-                      className="border-b border-gray-100 last:border-0 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/40"
-                    >
-                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                    <DataTableRow key={p.id}>
+                      <DataTableCell className="text-gray-600 dark:text-gray-400">
                         {formatDateTime(p.paidAt)}
-                      </td>
-                      <td className="px-4 py-3 font-medium">{p.customerName}</td>
-                      <td className="px-4 py-3">
+                      </DataTableCell>
+                      <DataTableCell className="font-medium">{p.customerName}</DataTableCell>
+                      <DataTableCell>
                         {p.isQuickPayment ? (
                           <Badge variant="neutral">Visita día</Badge>
                         ) : (
                           <Badge variant="active">Membresía</Badge>
                         )}
-                      </td>
-                      <td className="px-4 py-3 font-mono">
+                      </DataTableCell>
+                      <DataTableCell className="font-mono">
                         {formatCurrency(p.amount, tenant.data?.currency)}
-                      </td>
-                      <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                      </DataTableCell>
+                      <DataTableCell className="text-gray-600 dark:text-gray-400">
                         {PAYMENT_METHOD_LABEL[p.paymentMethod] || p.paymentMethod}
-                      </td>
-                      <td
-                        className="max-w-xs truncate px-4 py-3 text-gray-500 dark:text-gray-400"
+                      </DataTableCell>
+                      <DataTableCell
+                        className="max-w-xs truncate text-gray-500 dark:text-gray-400"
                         title={p.notes || undefined}
                       >
                         {p.notes || "—"}
-                      </td>
-                    </tr>
+                      </DataTableCell>
+                    </DataTableRow>
                   ))}
                 </tbody>
-              </table>
-            </div>
+              </DataTable>
+
+              <MobileCardList>
+                {data?.items.map((p) => (
+                  <div
+                    key={p.id}
+                    className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-semibold text-gray-900 dark:text-gray-100">
+                          {p.customerName}
+                        </p>
+                        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                          {formatDateTime(p.paidAt)}
+                        </p>
+                      </div>
+                      <p className="font-mono text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                        {formatCurrency(p.amount, tenant.data?.currency)}
+                      </p>
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                      {p.isQuickPayment ? (
+                        <Badge variant="neutral">Visita día</Badge>
+                      ) : (
+                        <Badge variant="active">Membresía</Badge>
+                      )}
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {PAYMENT_METHOD_LABEL[p.paymentMethod] || p.paymentMethod}
+                      </span>
+                    </div>
+                    {p.notes && (
+                      <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                        {p.notes}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </MobileCardList>
+            </>
           )}
         </CardContent>
       </Card>

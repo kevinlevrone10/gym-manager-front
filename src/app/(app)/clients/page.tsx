@@ -19,6 +19,14 @@ import { PermissionGuard } from "@/components/auth/permission-guard";
 
 import { PageHeader } from "@/components/layout/page-header";
 import { Pagination } from "@/components/ui/pagination";
+import {
+  DataTable,
+  DataTableCell,
+  DataTableHead,
+  DataTableHeader,
+  DataTableRow,
+  MobileCardList,
+} from "@/components/ui/data-table";
 import { useClientsQuery, useDeleteClient } from "@/lib/queries/clients";
 import { extractErrorMessage } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
@@ -131,19 +139,19 @@ export default function ClientsPage() {
               }
             />
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-800">
-                    <th className="px-4 py-3 font-medium">Nombre</th>
-                    <th className="px-4 py-3 font-medium">Teléfono</th>
-                    <th className="px-4 py-3 font-medium">Plan</th>
-                    <th className="px-4 py-3 font-medium">Vence</th>
-                    <th className="px-4 py-3 font-medium">Estado</th>
-                    <th className="px-4 py-3 font-medium">Registrado</th>
-                    <th className="px-4 py-3 text-right font-medium">Acciones</th>
+            <>
+              <DataTable>
+                <DataTableHead>
+                  <tr>
+                    <DataTableHeader>Nombre</DataTableHeader>
+                    <DataTableHeader>Teléfono</DataTableHeader>
+                    <DataTableHeader>Plan</DataTableHeader>
+                    <DataTableHeader>Vence</DataTableHeader>
+                    <DataTableHeader>Estado</DataTableHeader>
+                    <DataTableHeader>Registrado</DataTableHeader>
+                    <DataTableHeader className="text-right">Acciones</DataTableHeader>
                   </tr>
-                </thead>
+                </DataTableHead>
                 <tbody>
                   {data?.items.map((c) => {
                     const m = c.membership;
@@ -152,11 +160,8 @@ export default function ClientsPage() {
                       ? membershipBadgeVariant(days)
                       : "cancelled";
                     return (
-                      <tr
-                        key={c.id}
-                        className="border-b border-gray-100 last:border-0 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-gray-800/40"
-                      >
-                        <td className="px-4 py-3">
+                      <DataTableRow key={c.id}>
+                        <DataTableCell>
                           <div className="flex items-center gap-2">
                             <Link
                               href={`/clients/${c.id}`}
@@ -166,28 +171,28 @@ export default function ClientsPage() {
                             </Link>
                             {c.whatsAppOptIn && (
                               <MessageSquare
-                                className="h-3.5 w-3.5 shrink-0 text-green-600"
+                                className="h-3.5 w-3.5 shrink-0 text-emerald-600"
                                 aria-label="WhatsApp habilitado"
                               />
                             )}
                           </div>
-                        </td>
-                        <td className="px-4 py-3 font-mono text-gray-600 dark:text-gray-400">
+                        </DataTableCell>
+                        <DataTableCell className="font-mono text-gray-600 dark:text-gray-400">
                           {c.phone}
-                        </td>
-                        <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                        </DataTableCell>
+                        <DataTableCell className="text-gray-600 dark:text-gray-400">
                           {m?.planName ?? "—"}
-                        </td>
-                        <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
+                        </DataTableCell>
+                        <DataTableCell className="text-gray-600 dark:text-gray-400">
                           {m?.endDate ? formatDate(m.endDate) : "—"}
-                        </td>
-                        <td className="px-4 py-3">
+                        </DataTableCell>
+                        <DataTableCell>
                           <Badge variant={variant}>{membershipLabel(c)}</Badge>
-                        </td>
-                        <td className="px-4 py-3 text-gray-500 dark:text-gray-400">
+                        </DataTableCell>
+                        <DataTableCell className="text-gray-500 dark:text-gray-400">
                           {formatDate(c.createdAt)}
-                        </td>
-                        <td className="px-4 py-3 text-right">
+                        </DataTableCell>
+                        <DataTableCell className="text-right">
                           <RowActions
                             client={c}
                             open={menuOpen === c.id}
@@ -204,13 +209,80 @@ export default function ClientsPage() {
                               setMenuOpen(null);
                             }}
                           />
-                        </td>
-                      </tr>
+                        </DataTableCell>
+                      </DataTableRow>
                     );
                   })}
                 </tbody>
-              </table>
-            </div>
+              </DataTable>
+
+              <MobileCardList>
+                {data?.items.map((c) => {
+                  const m = c.membership;
+                  const days = m?.daysToExpiry;
+                  const variant = c.isActive
+                    ? membershipBadgeVariant(days)
+                    : "cancelled";
+                  return (
+                    <div
+                      key={c.id}
+                      className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900"
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <Link
+                              href={`/clients/${c.id}`}
+                              className="truncate font-semibold text-gray-900 hover:underline dark:text-gray-100"
+                            >
+                              {c.fullName}
+                            </Link>
+                            {c.whatsAppOptIn && (
+                              <MessageSquare
+                                className="h-3.5 w-3.5 shrink-0 text-emerald-600"
+                                aria-label="WhatsApp habilitado"
+                              />
+                            )}
+                          </div>
+                          <p className="mt-0.5 font-mono text-xs text-gray-500 dark:text-gray-400">
+                            {c.phone}
+                          </p>
+                        </div>
+                        <RowActions
+                          client={c}
+                          open={menuOpen === c.id}
+                          onToggle={() =>
+                            setMenuOpen(menuOpen === c.id ? null : c.id)
+                          }
+                          onClose={() => setMenuOpen(null)}
+                          onRenew={() => {
+                            setMenuOpen(null);
+                            router.push(`/memberships?clientId=${c.id}`);
+                          }}
+                          onDelete={() => {
+                            setDeleteClient(c);
+                            setMenuOpen(null);
+                          }}
+                        />
+                      </div>
+
+                      <div className="mt-3 flex items-center justify-between gap-2">
+                        <Badge variant={variant}>{membershipLabel(c)}</Badge>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">
+                          {m?.endDate ? `Vence ${formatDate(m.endDate)}` : "Sin membresía"}
+                        </span>
+                      </div>
+
+                      {m?.planName && (
+                        <p className="mt-2 text-xs text-gray-600 dark:text-gray-400">
+                          {m.planName}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+              </MobileCardList>
+            </>
           )}
         </CardContent>
       </Card>

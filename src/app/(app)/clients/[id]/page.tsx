@@ -136,50 +136,84 @@ export default function ClientDetailPage() {
           ) : list.length === 0 ? (
             <p className="text-sm text-gray-500">Sin histórico</p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-200 text-left text-xs uppercase text-gray-500 dark:border-gray-800">
-                    <th className="py-2 pr-4">Plan</th>
-                    <th className="py-2 pr-4">Inicio</th>
-                    <th className="py-2 pr-4">Fin</th>
-                    <th className="py-2 pr-4">Estado</th>
-                    <th className="py-2 text-right">Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {list.map((m) => (
-                    <tr key={m.id} className="border-b border-gray-100 dark:border-gray-800">
-                      <td className="py-3 pr-4 font-medium">{m.planName}</td>
-                      <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
-                        {formatDate(m.startDate)}
-                      </td>
-                      <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
-                        {formatDate(m.endDate)}
-                      </td>
-                      <td className="py-3 pr-4">
-                        <Badge variant={membershipBadgeVariant(0, m.status)}>
-                          {m.status}
-                        </Badge>
-                      </td>
-                      <td className="py-3 text-right">
-                        {(m.status === "active" || m.status === "pending") && (
-                          <PermissionGuard permission="memberships.cancel">
-                            <button
-                              type="button"
-                              onClick={() => setConfirmCancel(m.id)}
-                              className="text-xs text-red-600 hover:underline"
-                            >
-                              Cancelar
-                            </button>
-                          </PermissionGuard>
-                        )}
-                      </td>
+            <>
+              <div className="hidden overflow-x-auto md:block">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200 text-left text-xs uppercase text-gray-500 dark:border-gray-800">
+                      <th className="py-2 pr-4">Plan</th>
+                      <th className="py-2 pr-4">Inicio</th>
+                      <th className="py-2 pr-4">Fin</th>
+                      <th className="py-2 pr-4">Estado</th>
+                      <th className="py-2 text-right">Acciones</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {list.map((m) => (
+                      <tr key={m.id} className="border-b border-gray-100 dark:border-gray-800">
+                        <td className="py-3 pr-4 font-medium">{m.planName}</td>
+                        <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
+                          {formatDate(m.startDate)}
+                        </td>
+                        <td className="py-3 pr-4 text-gray-600 dark:text-gray-400">
+                          {formatDate(m.endDate)}
+                        </td>
+                        <td className="py-3 pr-4">
+                          <Badge variant={membershipBadgeVariant(0, m.status)}>
+                            {m.status}
+                          </Badge>
+                        </td>
+                        <td className="py-3 text-right">
+                          {(m.status === "active" || m.status === "pending") && (
+                            <PermissionGuard permission="memberships.cancel">
+                              <button
+                                type="button"
+                                onClick={() => setConfirmCancel(m.id)}
+                                className="text-xs text-rose-600 hover:underline"
+                              >
+                                Cancelar
+                              </button>
+                            </PermissionGuard>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="space-y-3 md:hidden">
+                {list.map((m) => (
+                  <div
+                    key={m.id}
+                    className="rounded-lg border border-gray-200 p-3 dark:border-gray-800"
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="truncate font-medium">{m.planName}</p>
+                        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                          {formatDate(m.startDate)} → {formatDate(m.endDate)}
+                        </p>
+                      </div>
+                      <Badge variant={membershipBadgeVariant(0, m.status)}>
+                        {m.status}
+                      </Badge>
+                    </div>
+                    {(m.status === "active" || m.status === "pending") && (
+                      <PermissionGuard permission="memberships.cancel">
+                        <button
+                          type="button"
+                          onClick={() => setConfirmCancel(m.id)}
+                          className="mt-2 text-xs text-rose-600 hover:underline"
+                        >
+                          Cancelar membresía
+                        </button>
+                      </PermissionGuard>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

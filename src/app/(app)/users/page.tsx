@@ -15,6 +15,14 @@ import { Dialog } from "@/components/ui/dialog";
 import { Input, Label, Select } from "@/components/ui/input";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Pagination } from "@/components/ui/pagination";
+import {
+  DataTable,
+  DataTableCell,
+  DataTableHead,
+  DataTableHeader,
+  DataTableRow,
+  MobileCardList,
+} from "@/components/ui/data-table";
 import { PermissionGuard } from "@/components/auth/permission-guard";
 
 import {
@@ -69,47 +77,80 @@ export default function UsersPage() {
           ) : data?.items.length === 0 ? (
             <EmptyState icon={UserCog} title="Sin usuarios" className="border-0" />
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-200 text-left text-xs uppercase text-gray-500 dark:border-gray-800">
-                  <th className="px-4 py-3">Nombre</th>
-                  <th className="px-4 py-3">Email</th>
-                  <th className="px-4 py-3">Rol</th>
-                  <th className="px-4 py-3">Estado</th>
-                  <th className="px-4 py-3">Creado</th>
-                  <th className="px-4 py-3 text-right">Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
+            <>
+              <DataTable>
+                <DataTableHead>
+                  <tr>
+                    <DataTableHeader>Nombre</DataTableHeader>
+                    <DataTableHeader>Email</DataTableHeader>
+                    <DataTableHeader>Rol</DataTableHeader>
+                    <DataTableHeader>Estado</DataTableHeader>
+                    <DataTableHeader>Creado</DataTableHeader>
+                    <DataTableHeader className="text-right">Acciones</DataTableHeader>
+                  </tr>
+                </DataTableHead>
+                <tbody>
+                  {data?.items.map((u) => (
+                    <DataTableRow key={u.id}>
+                      <DataTableCell className="font-medium">{u.name}</DataTableCell>
+                      <DataTableCell className="text-gray-600 dark:text-gray-400">
+                        {u.email}
+                      </DataTableCell>
+                      <DataTableCell>
+                        <Badge variant="neutral">{u.roleName}</Badge>
+                      </DataTableCell>
+                      <DataTableCell>
+                        <Badge variant={u.isActive ? "active" : "cancelled"}>
+                          {u.isActive ? "Activo" : "Inactivo"}
+                        </Badge>
+                      </DataTableCell>
+                      <DataTableCell className="text-gray-600 dark:text-gray-400">
+                        {formatDate(u.createdAt)}
+                      </DataTableCell>
+                      <DataTableCell className="text-right">
+                        <PermissionGuard permission="users.update">
+                          <Button variant="ghost" size="sm" onClick={() => setEditing(u)}>
+                            <Pencil className="h-3.5 w-3.5" /> Editar
+                          </Button>
+                        </PermissionGuard>
+                      </DataTableCell>
+                    </DataTableRow>
+                  ))}
+                </tbody>
+              </DataTable>
+
+              <MobileCardList>
                 {data?.items.map((u) => (
-                  <tr
+                  <div
                     key={u.id}
-                    className="border-b border-gray-100 last:border-0 dark:border-gray-800"
+                    className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-gray-900"
                   >
-                    <td className="px-4 py-3 font-medium">{u.name}</td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">{u.email}</td>
-                    <td className="px-4 py-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-semibold">{u.name}</p>
+                        <p className="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400">
+                          {u.email}
+                        </p>
+                      </div>
+                      <PermissionGuard permission="users.update">
+                        <Button variant="ghost" size="sm" onClick={() => setEditing(u)}>
+                          <Pencil className="h-3.5 w-3.5" />
+                        </Button>
+                      </PermissionGuard>
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
                       <Badge variant="neutral">{u.roleName}</Badge>
-                    </td>
-                    <td className="px-4 py-3">
                       <Badge variant={u.isActive ? "active" : "cancelled"}>
                         {u.isActive ? "Activo" : "Inactivo"}
                       </Badge>
-                    </td>
-                    <td className="px-4 py-3 text-gray-600 dark:text-gray-400">
-                      {formatDate(u.createdAt)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <PermissionGuard permission="users.update">
-                        <Button variant="ghost" size="sm" onClick={() => setEditing(u)}>
-                          <Pencil className="h-3.5 w-3.5" /> Editar
-                        </Button>
-                      </PermissionGuard>
-                    </td>
-                  </tr>
+                      <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">
+                        {formatDate(u.createdAt)}
+                      </span>
+                    </div>
+                  </div>
                 ))}
-              </tbody>
-            </table>
+              </MobileCardList>
+            </>
           )}
         </CardContent>
       </Card>
